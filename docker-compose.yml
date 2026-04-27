@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: grupo3
+      POSTGRES_USER: grupo3
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/grupo3
+      SPRING_DATASOURCE_USERNAME: grupo3
+      SPRING_DATASOURCE_PASSWORD: secret
+    ports:
+      - "8080:9090"
+
+volumes:
+  db-data:
