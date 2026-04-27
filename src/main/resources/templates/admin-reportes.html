@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes Admin - ArquiteConvencionales</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+    <header style="background-color: #1a252f;"> <nav>
+            <div class="nav-brand">Panel de Administración</div>
+            <div class="nav-links">
+                <a th:href="@{/info-arquitectura}">Modo Estudiante</a>
+                <a th:href="@{/admin/reportes}" style="background-color: rgba(255,255,255,0.1);">Reportes Globales</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Dashboard de Calificaciones</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" th:text="${totalEvaluaciones}">0</div>
+                <div class="stat-label">Evaluaciones Totales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" th:text="${promedioGeneral + '%'}">0%</div>
+                <div class="stat-label">Promedio General</div>
+            </div>
+        </div>
+
+        <h2 style="margin-top: 40px; color: #2c3e50;">Registro de Estudiantes</h2>
+        
+        <div th:if="${#lists.isEmpty(resultados)}" class="alert success" style="margin-top: 20px;">
+            No hay registros de evaluaciones en la base de datos.
+        </div>
+
+        <div th:unless="${#lists.isEmpty(resultados)}" class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Estudiante (Username)</th>
+                        <th>Correo</th>
+                        <th>Fecha de Evaluación</th>
+                        <th>Puntaje</th>
+                        <th>Desempeño</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="res : ${resultados}">
+                        <td th:text="${res.id}"></td>
+                        <td style="font-weight: 500;" th:text="${res.usuario.username}"></td>
+                        <td th:text="${res.usuario.email}"></td>
+                        <td th:text="${#temporals.format(res.fechaRealizacion, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td style="font-weight: bold;" th:text="${res.puntaje + '%'}"></td>
+                        <td>
+                            <span th:if="${res.puntaje >= 70}" class="badge badge-success">Alto</span>
+                            <span th:if="${res.puntaje >= 50 and res.puntaje < 70}" class="badge badge-warning">Medio</span>
+                            <span th:if="${res.puntaje < 50}" class="badge badge-danger">Bajo</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>

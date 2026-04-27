@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ArquiteConvencionales</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="login-box">
+            <h1>Iniciar Sesión</h1>
+            
+            <div th:if="${param.error}" class="alert error">
+                Usuario o contraseña incorrectos
+            </div>
+            
+            <div th:if="${param.logout}" class="alert success">
+                Sesión cerrada correctamente
+            </div>
+            
+            <div th:if="${param.registroExitoso}" class="alert success">
+                ¡Registro exitoso! Por favor inicia sesión
+            </div>
+
+            <form th:action="@{/login}" method="post">
+                <div class="form-group">
+                    <label for="username">Usuario:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+            
+            <p class="register-link">
+                ¿No tienes cuenta? <a th:href="@{/registro}">Regístrate aquí</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

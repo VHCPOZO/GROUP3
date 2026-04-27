@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"></html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario - ArquiteConvencionales</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-brand">Arquitecturas Convencionales</div>
+            <div class="nav-links">
+                <a th:href="@{/info-arquitectura}">Información</a>
+                <a th:href="@{/cuestionario}">Cuestionario</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Cuestionario de Arquitectura</h1>
+        
+        <form th:action="@{/cuestionario}" method="post" class="cuestionario-form">
+            <div th:each="pregunta, iterStat : ${preguntas}" class="pregunta-card">
+                <div class="pregunta-numero">Pregunta <span th:text="${iterStat.count}"></span></div>
+                <div class="pregunta-texto" th:text="${pregunta.pregunta}"></div>
+                
+                <div class="opciones">
+                    <label class="opcion">
+                        <input type="radio" th:name="${'pregunta_' + pregunta.id}" value="A" required>
+                        <span class="opcion-label">A)</span>
+                        <span th:text="${pregunta.opcionA}"></span>
+                    </label>
+                    
+                    <label class="opcion">
+                        <input type="radio" th:name="${'pregunta_' + pregunta.id}" value="B">
+                        <span class="opcion-label">B)</span>
+                        <span th:text="${pregunta.opcionB}"></span>
+                    </label>
+                    
+                    <label class="opcion">
+                        <input type="radio" th:name="${'pregunta_' + pregunta.id}" value="C">
+                        <span class="opcion-label">C)</span>
+                        <span th:text="${pregunta.opcionC}"></span>
+                    </label>
+                    
+                    <label class="opcion">
+                        <input type="radio" th:name="${'pregunta_' + pregunta.id}" value="D">
+                        <span class="opcion-label">D)</span>
+                        <span th:text="${pregunta.opcionD}"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-large">Enviar Respuestas</button>
+        </form>
+    </div>
+</body>
+</html>

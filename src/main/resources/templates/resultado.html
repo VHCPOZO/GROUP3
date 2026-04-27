@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - ArquiteConvencionales</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-brand">Arquitecturas Convencionales</div>
+            <div class="nav-links">
+                <a th:href="@{/info-arquitectura}">Información</a>
+                <a th:href="@{/cuestionario}">Nuevo Cuestionario</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="resultado-card">
+            <h1>¡Cuestionario Completado!</h1>
+            
+            <div class="resultado-puntaje">
+                <div class="puntaje-numero" th:text="${resultado.puntaje} + '%'"></div>
+                <div class="puntaje-label">Tu Puntaje</div>
+            </div>
+            
+            <div class="resultado-detalles">
+                <p><strong>Respuestas Correctas:</strong> <span th:text="${resultado.respuestasCorrectas}"></span> de <span th:text="${resultado.totalPreguntas}"></span></p>
+                <p><strong>Fecha:</strong> <span th:text="${#temporals.format(resultado.fechaRealizacion, 'dd/MM/yyyy HH:mm')}"></span></p>
+            </div>
+            
+            <div class="resultado-mensaje">
+                <p th:if="${resultado.puntaje >= 70}">¡Excelente trabajo! Tienes un buen conocimiento sobre arquitecturas convencionales.</p>
+                <p th:if="${resultado.puntaje >= 50 and resultado.puntaje < 70}">¡Buen intento! Repasa el material para mejorar tu puntuación.</p>
+                <p th:if="${resultado.puntaje < 50}">Te recomendamos estudiar más sobre arquitecturas convencionales e intentar de nuevo.</p>
+            </div>
+            
+            <div class="resultado-acciones">
+                <a th:href="@{/cuestionario}" class="btn btn-primary">Intentar de Nuevo</a>
+                <a th:href="@{/info-arquitectura}" class="btn btn-secondary">Ver Información</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

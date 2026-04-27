@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Notas - ArquiteConvencionales</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="nav-brand">Arquitecturas Convencionales</div>
+            <div class="nav-links">
+                <a th:href="@{/info-arquitectura}">Información</a>
+                <a th:href="@{/cuestionario}">Cuestionario</a>
+                <a th:href="@{/mis-notas}" style="background-color: rgba(255,255,255,0.1);">Mis Notas</a>
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
+                </form>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Mi Historial de Evaluaciones</h1>
+        <p style="color: #555; margin-bottom: 20px;">Revisa tu progreso y resultados de los cuestionarios anteriores.</p>
+
+        <div th:if="${#lists.isEmpty(resultados)}" class="info-section" style="text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 15px;">📝</div>
+            <h3>Aún no has realizado ninguna evaluación</h3>
+            <p>Anímate a poner a prueba tus conocimientos.</p>
+            <a th:href="@{/cuestionario}" class="btn btn-primary" style="margin-top: 15px;">Ir al Cuestionario</a>
+        </div>
+
+        <div th:unless="${#lists.isEmpty(resultados)}" class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Tema</th>
+                        <th>Respuestas</th>
+                        <th>Puntaje</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="res : ${resultados}">
+                        <td th:text="${#temporals.format(res.fechaRealizacion, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${res.tema}"></td>
+                        <td th:text="${res.respuestasCorrectas + ' / ' + res.totalPreguntas}"></td>
+                        <td style="font-weight: bold; color: #3498db;" th:text="${res.puntaje + '%'}"></td>
+                        <td>
+                            <span th:if="${res.puntaje >= 70}" class="badge badge-success">Aprobado</span>
+                            <span th:if="${res.puntaje >= 50 and res.puntaje < 70}" class="badge badge-warning">Regular</span>
+                            <span th:if="${res.puntaje < 50}" class="badge badge-danger">Reprobado</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script th:src="@{/js/scripts.js}"></script>
+</body>
+</html>
