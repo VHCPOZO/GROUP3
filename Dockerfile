@@ -3,7 +3,7 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /app
 
 # Cache Maven dependencies by copying pom and wrapper first
-COPY pom.xml mvnw .
+COPY pom.xml mvnw ./
 COPY .mvn .mvn
 
 # Copy source and build jar
