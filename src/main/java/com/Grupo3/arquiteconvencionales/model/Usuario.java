@@ -1,12 +1,15 @@
 package com.Grupo3.arquiteconvencionales.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
-import lombok.Data;
 
 @Entity
 @Table(name = "usuarios")
-@Data
+@Getter
+@Setter
 public class Usuario {
 
     @Id
@@ -26,9 +29,8 @@ public class Usuario {
     private LocalDateTime fechaRegistro;
 
     @Column(nullable = false)
-    private String rol; // ROLE_USER, ROLE_ADMIN
+    private String rol;
 
-    // Constructores
     public Usuario() {}
 
     public Usuario(String username, String password, String email, String rol) {
@@ -38,23 +40,4 @@ public class Usuario {
         this.rol = rol;
         this.fechaRegistro = LocalDateTime.now();
     }
-
-    // Getters y Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-
-    public LocalDateTime getFechaRegistro() { return fechaRegistro; }
-    public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
-
-    public String getRol() { return rol; }
-    public void setRol(String rol) { this.rol = rol; }
 }

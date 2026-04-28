@@ -1,92 +1,96 @@
 package com.Grupo3.arquiteconvencionales.service;
 
+import com.Grupo3.arquiteconvencionales.config.Constantes;
 import com.Grupo3.arquiteconvencionales.model.Pregunta;
 import com.Grupo3.arquiteconvencionales.model.Resultado;
 import com.Grupo3.arquiteconvencionales.model.Usuario;
 import com.Grupo3.arquiteconvencionales.repository.PreguntaRepository;
 import com.Grupo3.arquiteconvencionales.repository.ResultadoRepository;
 import com.Grupo3.arquiteconvencionales.repository.UsuarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service
+@RequiredArgsConstructor
 public class CuestionarioService {
 
-    @Autowired
-    private PreguntaRepository preguntaRepository;
+    private final PreguntaRepository preguntaRepository;
+    private final ResultadoRepository resultadoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private ResultadoRepository resultadoRepository;
-
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    // Obtener todas las preguntas
     public List<Pregunta> obtenerTodasLasPreguntas() {
         return preguntaRepository.findAllByOrderByIdAsc();
     }
 
-    // Obtener preguntas por tema
-    public List<Pregunta> obtenerPreguntasPorTema(String tema) {
+    public List<Pregunta> obtenerPreguntasPorTema(final String tema) {
         return preguntaRepository.findByTema(tema);
     }
 
-    // Registrar usuario
     @Transactional
-    public Usuario registrarUsuario(String username, String password, String email) {
+    public Usuario registrarUsuario(final String username, final String password, final String email) {
         if (usuarioRepository.existsByUsername(username)) {
-            throw new RuntimeException("El nombre de usuario ya existe");
+            throw new IllegalArgumentException(Constantes.ERR_USUARIO_YA_EXISTE);
         }
         if (usuarioRepository.existsByEmail(email)) {
-            throw new RuntimeException("El correo electrónico ya está registrado");
+            throw new IllegalArgumentException(Constantes.ERR_EMAIL_YA_REGISTRADO);
         }
 
-        Usuario usuario = new Usuario(
+        final Usuario usuario = new Usuario(
             username,
             passwordEncoder.encode(password),
             email,
-            "ROLE_USER"
+            Constantes.DEFAULT_ROLE
         );
         return usuarioRepository.save(usuario);
     }
 
-    // Guardar resultado del cuestionario
+
+    public Map<String, String> filtrarRespuestas(final Map<String, String> params) {
+        return params.entrySet().stream()
+                .filter(entry -> entry.getKey().startsWith(Constantes.PREFIJO_PREGUNTA))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+
     @Transactional
-    public Resultado guardarResultado(Long usuarioId, Map<String, String> respuestas) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public Resultado guardarResultado(final Long usuarioId, final Map<String, String> respuestas) {
+        final Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException(Constantes.ERR_USUARIO_NO_ENCONTRADO));
 
-        List<Pregunta> preguntas = preguntaRepository.findAll();
-        int correctas = 0;
+        final List<Pregunta> preguntas = preguntaRepository.findAll();
+        
+        final long correctas = preguntas.stream()
+                .filter(pregunta -> {
+                    String respuestaUsuario = respuestas.get(Constantes.PREFIJO_PREGUNTA + pregunta.getId());
+                    return respuestaUsuario != null 
+                        && respuestaUsuario.equals(pregunta.getRespuestaCorrecta());
+                })
+                .count();
 
-        for (Pregunta pregunta : preguntas) {
-            String respuestaUsuario = respuestas.get("pregunta_" + pregunta.getId());
-            if (respuestaUsuario != null && respuestaUsuario.equals(pregunta.getRespuestaCorrecta())) {
-                correctas++;
-            }
-        }
-
-        int puntaje = (int) ((double) correctas / preguntas.size() * 100);
-        Resultado resultado = new Resultado(usuario, puntaje, preguntas.size(), correctas, "General");
+        final int puntaje = (int) ((double) correctas / preguntas.size() * 100);
+        final Resultado resultado = new Resultado(
+            usuario, 
+            puntaje, 
+            preguntas.size(), 
+            (int) correctas, 
+            Constantes.TEMA_DEFAULT
+        );
         
         return resultadoRepository.save(resultado);
     }
 
-    // Obtener resultados del usuario
-    public List<Resultado> obtenerResultadosUsuario(String username) {
+    public List<Resultado> obtenerResultadosUsuario(final String username) {
         return resultadoRepository.findByUsuarioUsername(username);
     }
 
-    // Obtener todas las notas del sistema (Para el Administrador)
     public List<Resultado> obtenerTodosLosResultados() {
         return resultadoRepository.findAllByOrderByFechaRealizacionDesc();
     }
