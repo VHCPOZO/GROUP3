@@ -1,57 +1,50 @@
 package com.Grupo3.arquiteconvencionales.controller;
 
+import com.Grupo3.arquiteconvencionales.config.Constantes;
 import com.Grupo3.arquiteconvencionales.model.Pregunta;
 import com.Grupo3.arquiteconvencionales.model.Resultado;
 import com.Grupo3.arquiteconvencionales.model.Usuario;
 import com.Grupo3.arquiteconvencionales.repository.UsuarioRepository;
 import com.Grupo3.arquiteconvencionales.service.CuestionarioService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Controller
+@RequiredArgsConstructor
 public class CuestionarioController {
 
-    @Autowired
-    private CuestionarioService cuestionarioService;
+    private final CuestionarioService cuestionarioService;
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
 
-    // Mostrar cuestionario
-    @GetMapping("/cuestionario")
-    public String mostrarCuestionario(Model model) {
-        List<Pregunta> preguntas = cuestionarioService.obtenerTodasLasPreguntas();
+    @GetMapping(Constantes.VIEW_CUESTIONARIO)
+    public String mostrarCuestionario(final Model model) {
+        final List<Pregunta> preguntas = cuestionarioService.obtenerTodasLasPreguntas();
         model.addAttribute("preguntas", preguntas);
-        return "cuestionario";
+        return Constantes.VIEW_CUESTIONARIO;
     }
 
-    // Procesar respuestas del cuestionario
-    @PostMapping("/cuestionario")
-    public String procesarCuestionario(@RequestParam Map<String, String> params,
-                                       Authentication authentication,
-                                       Model model) {
-        String username = authentication.getName();
-        Usuario usuario = usuarioRepository.findByUsername(username)
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    @PostMapping(Constantes.VIEW_CUESTIONARIO)
+    public String procesarCuestionario(
+            @RequestParam final Map<String, String> params,
+            final Authentication authentication,
+            final Model model) {
+        
+        final String username = authentication.getName();
+        final Usuario usuario = usuarioRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException(Constantes.ERR_USUARIO_NO_ENCONTRADO));
 
-        // Filtrar solo las respuestas de preguntas
-        Map<String, String> respuestas = new HashMap<>();
-        for (Map.Entry<String, String> entry : params.entrySet()) {
-            if (entry.getKey().startsWith("pregunta_")) {
-                respuestas.put(entry.getKey(), entry.getValue());
-            }
-        }
+        final Map<String, String> respuestas = cuestionarioService.filtrarRespuestas(params);
 
-        Resultado resultado = cuestionarioService.guardarResultado(usuario.getId(), respuestas);
+        final Resultado resultado = cuestionarioService.guardarResultado(usuario.getId(), respuestas);
         model.addAttribute("resultado", resultado);
         
-        return "resultado";
+        return Constantes.VIEW_RESULTADO;
     }
 }

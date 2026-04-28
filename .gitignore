@@ -1,6 +1,7 @@
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -18,6 +19,9 @@ target/
 *.iws
 *.iml
 *.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
 
 ### NetBeans ###
 /nbproject/private/
@@ -31,6 +35,8 @@ build/
 
 ### VS Code ###
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
 
 # Maven
 pom.xml.tag
@@ -41,6 +47,15 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+
+# Package Files
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
 # Logs
 *.log
@@ -57,4 +72,17 @@ $RECYCLE.BIN/
 *.tmp
 *.temp
 *.bak~
-application.properties
+
+.env
+application-local.properties
+
+# Test
+/test-output/
+/surefire-reports/
+
+# Docker
+docker-compose.override.yml
+.docker/
+
+# Hibernate
+*.db
