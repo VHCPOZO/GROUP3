@@ -36,43 +36,68 @@ public class DatabaseConfig {
     }
 
     private static Credentials resolveCredentials(final Environment env) {
-        final String explicitUrl = env.getProperty("SPRING_DATASOURCE_URL");
+        final String explicitUrl = property(env, "SPRING_DATASOURCE_URL");
         if (StringUtils.hasText(explicitUrl)) {
-            return new Credentials(
-                explicitUrl,
-                env.getProperty("SPRING_DATASOURCE_USERNAME", ""),
-                env.getProperty("SPRING_DATASOURCE_PASSWORD", ""),
-                hostFromJdbcUrl(explicitUrl)
+            if (explicitUrl.startsWith("jdbc:")) {
+                return new Credentials(
+                    explicitUrl,
+                    property(env, "SPRING_DATASOURCE_USERNAME", ""),
+                    property(env, "SPRING_DATASOURCE_PASSWORD", ""),
+                    hostFromJdbcUrl(explicitUrl)
+                );
+            }
+            final Credentials fromUrl = fromDatabaseUrl(explicitUrl);
+            final String username = firstNonBlank(
+                property(env, "SPRING_DATASOURCE_USERNAME"),
+                fromUrl.username()
             );
+            final String password = firstNonBlank(
+                property(env, "SPRING_DATASOURCE_PASSWORD"),
+                fromUrl.password()
+            );
+            return new Credentials(fromUrl.jdbcUrl(), username, password, fromUrl.hostForLog());
         }
 
-        final String privateUrl = env.getProperty("DATABASE_PRIVATE_URL");
-        if (StringUtils.hasText(privateUrl)) {
-            return fromDatabaseUrl(privateUrl);
+        for (final String urlKey : new String[]{
+            "DATABASE_PRIVATE_URL",
+            "DATABASE_URL",
+            "DATABASE_PUBLIC_URL",
+            "POSTGRES_URL",
+            "POSTGRES_PRIVATE_URL"
+        }) {
+            final String databaseUrl = property(env, urlKey);
+            if (StringUtils.hasText(databaseUrl)) {
+                return fromDatabaseUrl(databaseUrl);
+            }
         }
 
-        final String databaseUrl = env.getProperty("DATABASE_URL");
-        if (StringUtils.hasText(databaseUrl)) {
-            return fromDatabaseUrl(databaseUrl);
-        }
-
-        final String pgHost = env.getProperty("PGHOST");
+        final String pgHost = firstNonBlank(
+            property(env, "PGHOST"),
+            property(env, "POSTGRES_HOST"),
+            property(env, "POSTGRES_HOSTNAME")
+        );
         if (StringUtils.hasText(pgHost)) {
-            final int port = env.getProperty("PGPORT", Integer.class, 5432);
-            final String database = env.getProperty("PGDATABASE", "railway");
+            final int port = intProperty(env, "PGPORT", "POSTGRES_PORT", 5432);
+            final String database = firstNonBlank(
+                property(env, "PGDATABASE"),
+                property(env, "POSTGRES_DB"),
+                "railway"
+            );
             final String jdbcUrl = "jdbc:postgresql://%s:%d/%s".formatted(pgHost, port, database);
             return new Credentials(
                 jdbcUrl,
-                env.getProperty("PGUSER", ""),
-                env.getProperty("PGPASSWORD", ""),
+                firstNonBlank(property(env, "PGUSER"), property(env, "POSTGRES_USER"), ""),
+                firstNonBlank(property(env, "PGPASSWORD"), property(env, "POSTGRES_PASSWORD"), ""),
                 pgHost
             );
         }
 
         if (isRailwayDeployment(env)) {
+            logDatabaseDiagnostics(env);
             throw new IllegalStateException(
-                "PostgreSQL no configurado en Railway. Crea un servicio PostgreSQL, vinculalo a esta app "
-                    + "y agrega la referencia DATABASE_URL (o PGHOST/PGUSER/PGPASSWORD) en Variables."
+                "PostgreSQL no configurado en el servicio de la APP. "
+                    + "En Railway: servicio APP -> Variables -> pega DATABASE_URL copiada desde Postgres "
+                    + "(o Add Reference -> DATABASE_URL). Luego redeploy."
             );
         }
 
@@ -86,12 +111,68 @@ public class DatabaseConfig {
     }
 
     private static boolean isRailwayDeployment(final Environment env) {
-        return StringUtils.hasText(env.getProperty("RAILWAY_ENVIRONMENT"))
-            || StringUtils.hasText(env.getProperty("RAILWAY_PROJECT_ID"))
-            || StringUtils.hasText(env.getProperty("RAILWAY_SERVICE_ID"));
+        return StringUtils.hasText(property(env, "RAILWAY_ENVIRONMENT"))
+            || StringUtils.hasText(property(env, "RAILWAY_ENVIRONMENT_NAME"))
+            || StringUtils.hasText(property(env, "RAILWAY_PROJECT_ID"))
+            || StringUtils.hasText(property(env, "RAILWAY_SERVICE_ID"));
+    }
+
+    private static String property(final Environment env, final String key) {
+        final String value = env.getProperty(key);
+        return value != null ? value.strip() : null;
+    }
+
+    private static String property(final Environment env, final String key, final String defaultValue) {
+        final String value = property(env, key);
+        return StringUtils.hasText(value) ? value : defaultValue;
+    }
+
+    private static int intProperty(
+        final Environment env,
+        final String primaryKey,
+        final String secondaryKey,
+        final int defaultValue
+    ) {
+        final String primary = property(env, primaryKey);
+        if (StringUtils.hasText(primary)) {
+            return Integer.parseInt(primary);
+        }
+        final String secondary = property(env, secondaryKey);
+        if (StringUtils.hasText(secondary)) {
+            return Integer.parseInt(secondary);
+        }
+        return defaultValue;
+    }
+
+    private static String firstNonBlank(final String... values) {
+        for (final String value : values) {
+            if (StringUtils.hasText(value)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    private static void logDatabaseDiagnostics(final Environment env) {
+        log.error(
+            "Diagnostico BD en Railway: DATABASE_URL={}, DATABASE_PRIVATE_URL={}, PGHOST={}, "
+                + "SPRING_DATASOURCE_URL={}",
+            isSet(env, "DATABASE_URL"),
+            isSet(env, "DATABASE_PRIVATE_URL"),
+            isSet(env, "PGHOST"),
+            isSet(env, "SPRING_DATASOURCE_URL")
+        );
+    }
+
+    private static String isSet(final Environment env, final String key) {
+        return StringUtils.hasText(property(env, key)) ? "SI" : "NO";
     }
 
     private static Credentials fromDatabaseUrl(final String databaseUrl) {
+        if (databaseUrl.startsWith("jdbc:")) {
+            return new Credentials(databaseUrl, "", "", hostFromJdbcUrl(databaseUrl));
+        }
+
         try {
             final String normalized = databaseUrl.replace("postgres://", "postgresql://");
             final URI uri = URI.create(normalized);
