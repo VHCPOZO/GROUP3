@@ -1,112 +1,159 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!doctype html>
+<html
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Información - Arquitectura Monolítica</title>
+    <link rel="stylesheet" th:href="@{/css/estilos.css}" />
+  </head>
 
-</html>
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Información - ArquiteConvencionales</title>
-    <link rel="stylesheet" th:href="@{/css/estilos.css}">
-</head>
-
-<body>
+  <body>
     <header>
-        <nav>
-            <div class="nav-brand">Arquitecturas Convencionales</div>
-            <div class="nav-links">
-                <a th:href="@{/info-arquitectura}">Información</a>
+      <nav>
+        <div class="nav-brand">Arquitectura Monolítica: Guía Completa</div>
+        <div class="nav-links">
+          <a th:href="@{/info-arquitectura}">Información</a>
 
-                <a sec:authorize="hasRole('USER')" th:href="@{/cuestionario}">Cuestionario</a>
-                <a sec:authorize="hasRole('USER')" th:href="@{/mis-notas}">Mis Notas</a>
+          <a sec:authorize="hasRole('USER')" th:href="@{/cuestionario}"
+            >Cuestionario</a
+          >
+          <a sec:authorize="hasRole('USER')" th:href="@{/mis-notas}"
+            >Mis Notas</a
+          >
 
-                <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/reportes}"
-                    style="color: #f1c40f; font-weight: bold;">Panel Admin</a>
+          <a
+            sec:authorize="hasRole('ADMIN')"
+            th:href="@{/admin/reportes}"
+            style="color: #f1c40f; font-weight: bold"
+            >Panel Admin</a
+          >
 
-                <form th:action="@{/logout}" method="post" style="display: inline;">
-                    <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
-                </form>
-            </div>
-        </nav>
+          <form th:action="@{/logout}" method="post" style="display: inline">
+            <button type="submit" class="btn btn-logout">Cerrar Sesión</button>
+          </form>
+        </div>
+      </nav>
     </header>
 
     <div class="container">
-        <h1>Arquitecturas Convencionales</h1>
+      <h1>Arquitectura Monolítica y su Evolución</h1>
 
-        <section class="info-section">
-            <h2>¿Qué son las Arquitecturas Convencionales?</h2>
-            <p>Las arquitecturas convencionales se refiere a los patrones y estilos de diseño arquitectónico
-                tradicionales que han evolucionado a lo largo de la historia de la construcción. Estos enfoques se
-                caracterizan por:</p>
+      <section class="info-section">
+        <h2>¿Qué es la Arquitectura Monolítica?</h2>
+        <p>
+          En los inicios de la computación, existía una integración total donde
+          el hardware, el sistema operativo y la aplicación formaban una unidad
+          indivisible. Sus características principales incluyen:
+        </p>
 
-            <ul>
-                <li><strong>Estructura estable:</strong> Uso de materiales tradicionales como ladrillo, concreto y acero
-                </li>
-                <li><strong>Diseño funcional:</strong> Prioridad en la utilidad y habitabilidad de los espacios</li>
-                <li><strong>Estética establecida:</strong> Seguimiento de cánones estéticos probados</li>
-                <li><strong>Construcción probada:</strong> Métodos de construcción validados por el tiempo</li>
-            </ul>
-        </section>
+        <ul>
+          <li>
+            <strong>Bloque de Código Único:</strong> Un solo bloque que ocupa
+            toda la memoria disponible, impidiendo la modularidad.
+          </li>
+          <li>
+            <strong>Gestión de Actualizaciones:</strong> Cualquier cambio
+            requiere la detención total de la máquina y recompilación completa.
+          </li>
+          <li>
+            <strong>Rendimiento Optimizado:</strong> Alta eficiencia al evitar
+            latencia de red mediante comunicación directa en memoria.
+          </li>
+          <li>
+            <strong>Simplicidad de Despliegue:</strong> Facilita el lanzamiento
+            rápido de aplicaciones mediante un despliegue directo.
+          </li>
+        </ul>
+      </section>
 
-        <section class="info-section">
-            <h2>Tipos de Arquitecturas</h2>
+      <section class="info-section">
+        <h2>Evolución de las Arquitecturas</h2>
 
-            <article>
-                <h3>Arquitectura Brutalista</h3>
-                <p>Caracterizada por el uso expuesto del concreto (hormigón visto), formas geométricas bold y una
-                    estética raw y funcional.</p>
-            </article>
+        <article>
+          <h3>La Era de los Mainframes (Años 50 - 70)</h3>
+          <p>
+            Uso de lenguajes como COBOL y Fortran en bloques rígidos que
+            sentaron las bases de la lógica de negocio en sistemas centrales.
+          </p>
+        </article>
 
-            <article>
-                <h3>Arquitectura Modernista</h3>
-                <p>Enfoque funcionalista que prioriza la forma sigue a la función, uso de nuevos materiales y espacios
-                    abiertos.</p>
-            </article>
+        <article>
+          <h3>Arquitectura Por Capas (Años 80 - 90)</h3>
+          <p>
+            Organización con dependencia unidireccional (flujo descendente) para
+            evitar el acoplamiento circular y permitir la sustitución de
+            componentes.
+          </p>
+        </article>
 
-            <article>
-                <h3>Arquitectura Postmoderna</h3>
-                <p>Reacción al modernismo con uso de elementos decorativos, referencias históricas y juego con las
-                    formas.</p>
-            </article>
+        <article>
+          <h3>Modelo Vista Controlador (MVC)</h3>
+          <p>
+            Patrón enfocado en separar la representación visual de la
+            información (Vista) de la lógica de control (Controlador) y los
+            datos (Modelo).
+          </p>
+        </article>
 
-            <article>
-                <h3>Arquitectura Contemporánea</h3>
-                <p>Combina tecnologías actuales con diseños innovadores, sostenibilidad y eficiencia energética.</p>
-            </article>
-        </section>
+        <article>
+          <h3>Spring Boot (Entorno Profesional)</h3>
+          <p>
+            Ecosistema maduro que utiliza tipado estático, autoconfiguración y
+            empaquetado "Fat JAR" para modernizar el desarrollo del monolito.
+          </p>
+        </article>
+      </section>
 
-        <section class="info-section">
-            <h2>Elementos Constructivos</h2>
-            <p>Los elementos fundamentales en la arquitectura convencional incluyen:</p>
+      <section class="info-section">
+        <h2>Componentes y Estructura en Spring Boot</h2>
+        <p>
+          La organización moderna del monolito en capas claras evita el "código
+          espagueti" mediante estos elementos:
+        </p>
 
-            <div class="elementos-grid">
-                <div class="elemento">
-                    <h4>Cimientos</h4>
-                    <p>Base estructural que soporta toda la construcción</p>
-                </div>
-                <div class="elemento">
-                    <h4>Muros</h4>
-                    <p>Elementos verticales de cierre y división</p>
-                </div>
-                <div class="elemento">
-                    <h4>Vigas</h4>
-                    <p>Elementos horizontales que soportan cargas</p>
-                </div>
-                <div class="elemento">
-                    <h4>Columnas</h4>
-                    <p>Elementos verticales de soporte puntual</p>
-                </div>
-                <div class="elemento">
-                    <h4>Losas</h4>
-                    <p>Elementos horizontales de entrepiso</p>
-                </div>
-                <div class="elemento">
-                    <h4>Techos</h4>
-                    <p>Cubierta superior de la edificación</p>
-                </div>
-            </div>
-        </section>
+        <div class="elementos-grid">
+          <div class="elemento">
+            <h4>Controller</h4>
+            <p>
+              Gestiona los puntos de entrada y la API REST (@RestController)
+            </p>
+          </div>
+          <div class="elemento">
+            <h4>Service</h4>
+            <p>
+              Contiene el procesamiento de la lógica de negocio pura (@Service)
+            </p>
+          </div>
+          <div class="elemento">
+            <h4>Repository</h4>
+            <p>
+              Abstracción del acceso a datos mediante JPA y Spring Data
+              (@Repository)
+            </p>
+          </div>
+          <div class="elemento">
+            <h4>Model</h4>
+            <p>Representación de entidades y tablas de la base de datos</p>
+          </div>
+          <div class="elemento">
+            <h4>Infrastructure</h4>
+            <p>
+              Detalles técnicos como bases de datos, APIs externas y
+              herramientas de red
+            </p>
+          </div>
+          <div class="elemento">
+            <h4>Fat JAR</h4>
+            <p>
+              Archivo único ejecutable que contiene la API, dependencias y
+              lógica
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
-</body>
-
+  </body>
 </html>
