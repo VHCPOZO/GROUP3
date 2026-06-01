@@ -1,69 +1,282 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arquitecturas Convencionales - Inicio</title>
-    <link rel="stylesheet" th:href="@{/css/estilos.css}">
+    <title>Generador de Documento C4 - MentoraPredict</title>
+    
+    <style>
+        body { 
+            font-family: system-ui, -apple-system, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            background-color: #f0f4f8; 
+            margin: 0; 
+        }
+        .container { 
+            text-align: center; 
+            background: white; 
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            max-width: 500px;
+        }
+        h1 { color: #1F3864; margin-bottom: 5px; }
+        p.subtitle { color: #595959; margin-bottom: 25px; }
+        button { 
+            background-color: #1F3864; 
+            color: white; 
+            border: none; 
+            padding: 14px 28px; 
+            font-size: 16px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            transition: background 0.3s; 
+            font-weight: bold;
+            width: 100%;
+        }
+        button:hover { background-color: #2E75B6; }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; }
+        #status { color: #2E75B6; margin-top: 20px; font-size: 14px; font-weight: bold; min-height: 20px;}
+    </style>
 </head>
 <body>
-    <header>
-        <nav>
-            <div class="nav-brand">Arquitecturas Convencionales</div>
-            <div class="nav-links">
-                <a th:href="@{/login}">Iniciar Sesión</a>
-                <a th:href="@{/registro}">Registrarse</a>
-            </div>
-        </nav>
-    </header>
 
     <div class="container">
-        <div class="hero-section">
-            <h1>Sistema Educativo de Arquitecturas Convencionales</h1>
-            <p class="tagline">Aprende sobre los fundamentos de la arquitectura tradicional</p>
-            
-            <div class="hero-buttons">
-                <a th:href="@{/login}" class="btn btn-primary btn-large">Iniciar Sesión</a>
-                <a th:href="@{/registro}" class="btn btn-secondary btn-large">Registrarse</a>
-            </div>
-        </div>
-
-        <section class="features-section">
-            <h2>¿Qué puedes hacer?</h2>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📝</div>
-                    <h3>Cuestionario</h3>
-                    <p>Responde preguntas sobre arquitectura convencional y pon a prueba tus conocimientos.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📚</div>
-                    <h3>Información</h3>
-                    <p>Aprende sobre los diferentes estilos y elementos de la arquitectura tradicional.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Resultados</h3>
-                    <p>Visualiza tu puntaje y seguimiento de tus intentos anteriores.</p>
-                </div>
-            </div>
-        </section>
-
-        <section class="about-section">
-            <h2>Acerca del Sistema</h2>
-            <p>Este es un sistema educativo diseñado para ayudarte a aprender sobre las arquitecturas convencionales. 
-            El sistema incluye un cuestionario interactivo y material informativo sobre los conceptos básicos de la arquitectura.</p>
-            <p><strong>Technologías:</strong> Spring Boot, Thymeleaf, PostgreSQL, Spring Security</p>
-        </section>
+        <h1>Generador de MVP Backend</h1>
+        <p class="subtitle">MentoraPredict - Turborepo (7-8 Páginas)</p>
+        <button id="downloadBtn">Descargar Documento (.docx)</button>
+        <p id="status"></p>
     </div>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 - Sistema Educativo de Arquitecturas Convencionales</p>
-        </div>
-    </footer>
+    <script type="module">
+        import * as docx from 'https://esm.sh/docx@8.2.3';
+
+        const {
+            Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell,
+            Header, Footer, AlignmentType, HeadingLevel, BorderStyle, WidthType,
+            ShadingType, VerticalAlign, PageNumber, PageBreak, LevelFormat,
+            ImageRun, TabStopType, TabStopPosition
+        } = docx;
+
+        // ── helpers ──────────────────────────────────────────────────────────────────
+        const COLOR = { primary: '1F3864', accent:  '2E75B6', light:   'D6E4F0', mid: 'AED6F1', gray: 'F2F2F2', darkgray:'595959', white: 'FFFFFF', black: '000000' };
+        const FONT = 'Times New Roman';
+        const SIZE_BODY = 24;   
+        const SIZE_SMALL = 20;  
+
+        const border1 = { style: BorderStyle.SINGLE, size: 1, color: 'CCCCCC' };
+        const borders  = { top: border1, bottom: border1, left: border1, right: border1 };
+        
+        function p(text, opts = {}) { return new Paragraph({ spacing: { after: 120, line: 320 }, ...opts, children: [new TextRun({ text, font: FONT, size: SIZE_BODY, ...opts.run })] }); }
+        function h1(text) { return new Paragraph({ heading: HeadingLevel.HEADING_1, spacing: { before: 240, after: 120 }, children: [new TextRun({ text, font: FONT, size: 32, bold: true, color: COLOR.primary })] }); }
+        function h2(text) { return new Paragraph({ heading: HeadingLevel.HEADING_2, spacing: { before: 200, after: 80 }, children: [new TextRun({ text, font: FONT, size: 26, bold: true, color: COLOR.accent })] }); }
+        function h3(text) { return new Paragraph({ heading: HeadingLevel.HEADING_3, spacing: { before: 160, after: 60 }, children: [new TextRun({ text, font: FONT, size: 24, bold: true, color: COLOR.darkgray })] }); }
+        function pageBreak() { return new Paragraph({ children: [new PageBreak()] }); }
+        function spacer(pts = 100) { return new Paragraph({ spacing: { after: pts } }); }
+        function caption(text) { return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 160, before: 60 }, children: [new TextRun({ text, font: FONT, size: SIZE_SMALL, italics: true, color: COLOR.darkgray })] }); }
+        function sectionRule() { return new Paragraph({ spacing: { after: 160 }, border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: COLOR.accent, space: 1 } }, children: [] }); }
+
+        function th(text, widthDxa) { return new TableCell({ borders, width: { size: widthDxa, type: WidthType.DXA }, shading: { fill: COLOR.primary, type: ShadingType.CLEAR }, margins: { top: 60, bottom: 60, left: 100, right: 100 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text, font: FONT, size: SIZE_BODY, bold: true, color: COLOR.white })] })] }); }
+        function td(text, widthDxa, shade = false) { return new TableCell({ borders, width: { size: widthDxa, type: WidthType.DXA }, shading: { fill: shade ? COLOR.gray : COLOR.white, type: ShadingType.CLEAR }, margins: { top: 60, bottom: 60, left: 100, right: 100 }, children: [new Paragraph({ children: [new TextRun({ text, font: FONT, size: SIZE_BODY })] })] }); }
+        function tdBold(text, widthDxa) { return new TableCell({ borders, width: { size: widthDxa, type: WidthType.DXA }, shading: { fill: COLOR.light, type: ShadingType.CLEAR }, margins: { top: 60, bottom: 60, left: 100, right: 100 }, children: [new Paragraph({ children: [new TextRun({ text, font: FONT, size: SIZE_BODY, bold: true })] })] }); }
+
+        function imgParagraph(bufferData, origW, origH, targetW = 480) {
+            const ratio = origH / origW;
+            const targetH = Math.round(targetW * ratio);
+            return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new ImageRun({ type: 'png', data: bufferData, transformation: { width: targetW, height: targetH }, altText: { title: 'Diagrama C4', description: 'Diagrama C4', name: 'c4' } })] });
+        }
+
+        async function fetchImageBuffer(url) {
+            const response = await fetch(url);
+            return await response.arrayBuffer();
+        }
+
+        function monoTree() {
+            const lines = [
+                ['mentorapredict/  (Turborepo)', '', ''], 
+                ['├── apps/', '', ''], 
+                ['│   ├── svc-usuarios/', 'Microservicio de autenticación y roles', 'NestJS'],
+                ['│   ├── svc-academico/', 'Gestión de materias, notas, evaluaciones', 'NestJS'], 
+                ['│   ├── svc-recomendaciones/', 'Planes de mejora personalizados', 'NestJS'],
+                ['│   ├── svc-metricas/', 'Promedio, tendencia, cumplimiento', 'NestJS'], 
+                ['│   ├── svc-ia/', 'Predicción de riesgo + alertas tempranas', 'Python FastAPI'],
+                ['│   └── api-gateway/', 'Enrutamiento JWT, rate limiting', 'NestJS'], 
+                ['├── packages/', '', ''],
+                ['│   ├── shared-dto/', 'DTOs y contratos de API compartidos', 'TypeScript'], 
+                ['│   ├── shared-guards/', 'Guards JWT reutilizables', 'TypeScript'],
+                ['│   ├── shared-interfaces/', 'Interfaces de dominio comunes', 'TypeScript'], 
+                ['│   └── shared-utils/', 'Helpers (paginación, hashing, etc.)', 'TypeScript'],
+                ['├── docker-compose.yml', 'Entorno local completo', ''], 
+                ['├── turbo.json', 'Pipelines y tareas de Turborepo', ''], 
+                ['└── package.json', 'Dependencias raíz', ''],
+            ];
+            const rows = lines.map((line, i) => {
+                const isHeader = i === 0;
+                const fill = isHeader ? COLOR.primary : (i % 2 === 0 ? COLOR.gray : COLOR.white);
+                const textColor = isHeader ? COLOR.white : COLOR.black;
+                return new TableRow({
+                    children: [
+                        new TableCell({ borders, width: { size: 3600, type: WidthType.DXA }, shading: { fill, type: ShadingType.CLEAR }, margins: { top: 40, bottom: 40, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text: line[0], font: 'Courier New', size: SIZE_SMALL, bold: isHeader, color: textColor })] })] }),
+                        new TableCell({ borders, width: { size: 3960, type: WidthType.DXA }, shading: { fill, type: ShadingType.CLEAR }, margins: { top: 40, bottom: 40, left: 120, right: 120 }, children: [new Paragraph({ children: [new TextRun({ text: line[1], font: FONT, size: SIZE_SMALL, italics: !isHeader, color: textColor })] })] }),
+                        new TableCell({ borders, width: { size: 1800, type: WidthType.DXA }, shading: { fill, type: ShadingType.CLEAR }, margins: { top: 40, bottom: 40, left: 120, right: 120 }, children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: line[2], font: FONT, size: SIZE_SMALL, bold: isHeader, color: textColor })] })] }),
+                    ],
+                });
+            });
+            return new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [3600, 3960, 1800], rows });
+        }
+
+        function endpointsTable(rows_data) {
+            const header = new TableRow({ children: [th('Método', 900), th('Endpoint', 2700), th('Descripción', 3960), th('Auth', 1800)] });
+            const rows = rows_data.map(([met, ep, desc, auth], i) => new TableRow({ children: [td(met, 900, i%2===0), td(ep, 2700, i%2===0), td(desc, 3960, i%2===0), td(auth, 1800, i%2===0)] }));
+            return new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [900, 2700, 3960, 1800], rows: [header, ...rows] });
+        }
+
+        function schemaTable(columns) {
+            const header = new TableRow({ children: [th('Campo', 2400), th('Tipo', 1800), th('Descripción', 3960), th('Restricción', 1200)] });
+            const rows = columns.map(([field, type, desc, constraint], i) => new TableRow({ children: [td(field, 2400, i%2===0), td(type, 1800, i%2===0), td(desc, 3960, i%2===0), td(constraint, 1200, i%2===0)] }));
+            return new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [2400, 1800, 3960, 1200], rows: [header, ...rows] });
+        }
+
+        function techTable(rows_data) {
+            const header = new TableRow({ children: [th('Tecnología', 2200), th('Alternativa evaluada', 2200), th('Justificación', 4960)] });
+            const rows = rows_data.map(([tech, alt, why], i) => new TableRow({ children: [td(tech, 2200, i%2===0), td(alt, 2200, i%2===0), td(why, 4960, i%2===0)] }));
+            return new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [2200, 2200, 4960], rows: [header, ...rows] });
+        }
+
+        function backlogTable(rows_data) {
+            const header = new TableRow({ children: [th('Historia de usuario', 5400), th('Prioridad', 1500), th('Sprint', 900), th('Estado', 1560)] });
+            const rows = rows_data.map(([hu, prio, sprint, estado], i) => new TableRow({ children: [td(hu, 5400, i%2===0), td(prio, 1500, i%2===0), td(sprint, 900, i%2===0), td(estado, 1560, i%2===0)] }));
+            return new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [5400, 1500, 900, 1560], rows: [header, ...rows] });
+        }
+
+        async function generarYDescargar() {
+            const btn = document.getElementById('downloadBtn');
+            const status = document.getElementById('status');
+            btn.disabled = true;
+            status.innerText = "Optimizando y generando documento con Turborepo...";
+
+            try {
+                const imgDataL1 = await fetchImageBuffer('https://picsum.photos/seed/c4l1/1280/837');
+                const imgDataL2 = await fetchImageBuffer('https://picsum.photos/seed/c4l2/1280/1257');
+                const imgDataL3 = await fetchImageBuffer('https://picsum.photos/seed/c4l3/1280/1055');
+
+                const doc = new Document({
+                    sections: [{
+                        properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 1440, right: 1260, bottom: 1260, left: 1440 } } },
+                        headers: { default: new Header({ children: [new Paragraph({ alignment: AlignmentType.RIGHT, border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: COLOR.accent, space: 1 } }, spacing: { after: 120 }, children: [new TextRun({ text: 'MentoraPredict  |  MVP Backend  |  Rol: Back-End Developer', font: FONT, size: SIZE_SMALL, color: COLOR.darkgray })] })] }) },
+                        footers: { default: new Footer({ children: [new Paragraph({ tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }], border: { top: { style: BorderStyle.SINGLE, size: 4, color: COLOR.accent, space: 1 } }, spacing: { before: 100 }, children: [new TextRun({ text: 'Universidad Central del Ecuador  ·  Programación Web  ·  2026', font: FONT, size: SIZE_SMALL, color: COLOR.darkgray }), new TextRun({ text: '\t', font: FONT, size: SIZE_SMALL }), new TextRun({ text: 'Página ', font: FONT, size: SIZE_SMALL, color: COLOR.darkgray }), new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: SIZE_SMALL, color: COLOR.darkgray })] })] }),
+                        },
+                        children: [
+                            // ════ PORTADA (Página 1) ════
+                            new Paragraph({ spacing: { after: 400 }, children: [] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: 'UNIVERSIDAD CENTRAL DEL ECUADOR', font: FONT, size: 28, bold: true, color: COLOR.primary })] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: 'Facultad de Ingeniería y Ciencias Aplicadas', font: FONT, size: 24, color: COLOR.darkgray })] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [new TextRun({ text: 'Carrera de Ingeniería en Sistemas de Información', font: FONT, size: 24, color: COLOR.darkgray })] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 400 }, children: [new TextRun({ text: 'Programación Web  ·  2026', font: FONT, size: 22, italics: true, color: COLOR.darkgray })] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, border: { top: { style: BorderStyle.SINGLE, size: 8, color: COLOR.accent }, bottom: { style: BorderStyle.SINGLE, size: 8, color: COLOR.accent } }, children: [new TextRun({ text: 'MentoraPredict', font: FONT, size: 52, bold: true, color: COLOR.primary })] }),
+                            new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 400 }, children: [new TextRun({ text: 'Producto Mínimo Viable — Rol: Back-End Developer', font: FONT, size: 28, italics: true, color: COLOR.accent })] }),
+                            new Table({ width: { size: 6000, type: WidthType.DXA }, columnWidths: [2800, 3200], rows: [new TableRow({ children: [tdBold('Proyecto', 2800), td('MentoraPredict', 3200)] }), new TableRow({ children: [tdBold('Rol asignado', 2800), td('Back-End Developer', 3200)] }), new TableRow({ children: [tdBold('Integrante', 2800), td('Victor Hugo Cañar Pozo', 3200)] }), new TableRow({ children: [tdBold('Fecha de entrega', 2800), td('21 de mayo de 2026', 3200)] }), new TableRow({ children: [tdBold('Docente', 2800), td('Ing. Juan Pablo Guevara', 3200)] })] }),
+                            pageBreak(),
+
+                            // ════ 1. INTRO ════
+                            h1('1. Introducción'), sectionRule(),
+                            p('MentoraPredict es un sistema inteligente de analítica académica predictiva desarrollado para la Universidad Central del Ecuador. Su propósito es analizar el desempeño de los estudiantes, calcular métricas de rendimiento, predecir el riesgo de reprobación y generar recomendaciones personalizadas, pasando de un enfoque reactivo a uno preventivo. Este MVP define la base técnica y la arquitectura de microservicios para su implementación.'),
+                            spacer(120),
+
+                            // ════ 2. C4 ════
+                            h1('2. Arquitectura del Sistema (Modelo C4)'), sectionRule(),
+                            h2('2.1 Nivel 1 — Contexto y Nivel 2 — Contenedores'), 
+                            p('El sistema integra a estudiantes y docentes con una capa de analítica y la API externa de OpenAI. Internamente, se compone de un API Gateway, servicios core en NestJS, bases de datos (PostgreSQL, MongoDB, Redis) y un motor predictivo en FastAPI.'), spacer(60),
+                            imgParagraph(imgDataL1, 1280, 837, 440), caption('Figura 1. Contexto del sistema MentoraPredict'), spacer(60),
+                            imgParagraph(imgDataL2, 1280, 1257, 420), caption('Figura 2. Contenedores de MentoraPredict'), spacer(120),
+                            
+                            h2('2.2 Nivel 3 — Componentes y Nivel 4 — Código'), 
+                            p('El motor Python procesa datos crudos, ejecuta K-Means y Regresión Logística. Por otro lado, los servicios NestJS comparten una arquitectura de código estándar (Controller → Service → Repository) facilitando la inyección de dependencias y el testeo unitario.'), spacer(60),
+                            imgParagraph(imgDataL3, 1280, 1055, 460), caption('Figura 3. Componentes del Servicio IA (FastAPI)'), spacer(80),
+                            
+                            h3('Patrón de capas por módulo NestJS'),
+                            new Table({ 
+                                width: { size: 9360, type: WidthType.DXA }, 
+                                columnWidths: [2400, 2400, 4560], 
+                                rows: [
+                                    new TableRow({ children: [th('Capa (NestJS)', 2400), th('Clase / Archivo', 2400), th('Responsabilidad', 4560)] }),
+                                    new TableRow({ children: [td('Controller', 2400, false), td('*.controller.ts', 2400, false), td('Recibe y valida peticiones HTTP. Delega al Service. Documentado con decoradores Swagger.', 4560, false)] }),
+                                    new TableRow({ children: [td('Service', 2400, true), td('*.service.ts', 2400, true), td('Lógica de negocio. Orquesta repositorios y llamadas externas. Testeable de forma unitaria.', 4560, true)] }),
+                                    new TableRow({ children: [td('Repository', 2400, false), td('*.repository.ts', 2400, false), td('Abstracción de acceso a datos (TypeORM). Permite intercambiar fuente de datos sin afectar la lógica.', 4560, false)] }),
+                                    new TableRow({ children: [td('Entity', 2400, true), td('*.entity.ts', 2400, true), td('Mapeo ORM de la tabla de base de datos. Decoradores TypeORM.', 4560, true)] }),
+                                    new TableRow({ children: [td('DTO', 2400, false), td('*.dto.ts', 2400, false), td('Data Transfer Objects. Validación de entrada con class-validator. Centralizados en packages/shared-dto.', 4560, false)] }),
+                                    new TableRow({ children: [td('Module', 2400, true), td('*.module.ts', 2400, true), td('Registro del módulo en el contenedor IoC de NestJS. Define providers, controllers e imports.', 4560, true)] }),
+                                    new TableRow({ children: [td('Guard', 2400, false), td('jwt-auth.guard.ts', 2400, false), td('Protección de rutas mediante validación de JWT. Reutilizable desde packages/shared-guards.', 4560, false)] }),
+                                    new TableRow({ children: [td('Interceptor', 2400, true), td('logging.interceptor.ts', 2400, true), td('Intercepta requests/responses para logging, transformación de respuestas y manejo de errores.', 4560, true)] })
+                                ] 
+                            }),
+                            spacer(120),
+
+                            // ════ 3. MONOREPO ════
+                            h1('3. Estructura del Monorepo con Turborepo'), sectionRule(),
+                            p('Se utiliza Turborepo para gestionar el monorepo, separando servicios ejecutables (apps/) de paquetes reutilizables (packages/) como DTOs y Guards, agilizando los tiempos de build mediante caché local y evitando duplicación de código en los contratos de la API.'), spacer(80),
+                            monoTree(), spacer(120),
+
+                            // ════ 4. MICROSERVICIOS ════
+                            h1('4. Endpoints de Microservicios'), sectionRule(),
+                            h2('4.1 svc-usuarios & svc-academico'), 
+                            p('Gestión de identidad (JWT), roles, y el núcleo académico (materias, inscripciones, evaluaciones y notas).'), spacer(40),
+                            endpointsTable([['POST', '/auth/login', 'Autentica usuario y retorna JWT + refresh token', 'Público'], ['GET',  '/users/me', 'Retorna perfil del usuario autenticado', 'JWT Bearer'], ['GET', '/materias', 'Lista materias (filtro por docente o período)', 'JWT Bearer'], ['POST', '/notas', 'Registra la nota de un estudiante en evaluación', 'JWT+Docente']]), spacer(120),
+                            
+                            h2('4.2 svc-metricas, svc-ia & svc-recomendaciones'), 
+                            p('Cálculo de promedios, ejecución de modelos predictivos (riesgo de reprobación) y generación de planes de mejora mediante OpenAI.'), spacer(40),
+                            endpointsTable([['GET', '/metricas/estudiante/:id', 'Promedio, tendencia y cumplimiento del estudiante', 'JWT Bearer'], ['POST', '/predict/riesgo', 'Ejecuta regresión y retorna score de riesgo (%)', 'API Key'], ['GET',  '/alertas/:estudianteId', 'Retorna clasificación Bajo/Medio/Alto riesgo', 'JWT Bearer'], ['POST', '/recomendaciones/generar', 'Genera plan de mejora consultando GPT', 'JWT Bearer']]), spacer(120),
+
+                            // ════ 5. DATOS ════
+                            h1('5. Modelo de Datos'), sectionRule(),
+                            h2('5.1 Tablas Principales (PostgreSQL)'), 
+                            schemaTable([['users.id', 'UUID', 'Identificador, email, password_hash, rol (estudiante/docente)', 'PK'], ['materias.id', 'UUID', 'Código, nombre, creditos, docente_id', 'PK, FK'], ['notas.id', 'UUID', 'estudiante_id, evaluacion_id, valor (0-10)', 'PK, FK'], ['riesgo_academico.id', 'UUID', 'Score de probabilidad, nivel (bajo/medio/alto)', 'PK']]), spacer(120),
+                            h2('5.2 Colecciones MongoDB y Redis'), 
+                            p('MongoDB almacena el historial de planes de mejora (JSON flexible de GPT) y logs masivos. Redis gestiona la expiración de refresh tokens y el caché temporal de métricas para el dashboard.'), spacer(120),
+
+                            // ════ 6. DECISIONES, PRUEBAS Y BACKLOG ════
+                            h1('6. Decisiones Técnicas y Estrategia'), sectionRule(),
+                            techTable([['NestJS', 'Express puro', 'Inyección de dependencias nativa y arquitectura escalable.'], ['Python + FastAPI', 'NestJS para IA', 'Ecosistema óptimo para ML (scikit-learn, pandas).'], ['Turborepo', 'Repositorios separados', 'Gestión ultrarrápida, tareas en paralelo y caché de builds. Facilita compartir paquetes entre servicios de forma eficiente.'], ['PostgreSQL + Mongo', 'Solo PostgreSQL', 'Mongo maneja los esquemas variables de los prompts de GPT.']]), spacer(120),
+                            
+                            h2('6.1 Plan de Pruebas y Backlog'),
+                            p('Cobertura del 60% mediante Jest (Mocks) para NestJS y PyTest para FastAPI. El backlog inicial se centra en inicialización, auth y pipeline de datos:'), spacer(60),
+                            backlogTable([['Inicializar monorepo con Turborepo y Docker Compose local', 'Crítica', 'Sprint 1', 'Pendiente'], ['Registro y Login (JWT + Refresh Tokens)', 'Crítica', 'Sprint 1', 'Pendiente'], ['CRUD de materias y registro de notas de evaluación', 'Alta', 'Sprint 1', 'Pendiente'], ['Ejecutar regresión logística para calcular score de riesgo', 'Alta', 'Sprint 2', 'Pendiente'], ['Generar plan de mejora personalizado consultando API OpenAI', 'Media', 'Sprint 3', 'Pendiente']]), spacer(120),
+
+                            // ════ 7. CONCLUSIONES ════
+                            h1('7. Conclusiones y Repositorio'), sectionRule(),
+                            p('Este MVP de backend consolida la arquitectura técnica de MentoraPredict desde la perspectiva del rol Back-End Developer. Como entregables principales de esta fase destacan: la estructuración del monorepo utilizando Turborepo, la segmentación del sistema en microservicios con responsabilidades claramente delimitadas, la definición de los modelos de datos (relacional y documental), la especificación de los contratos de API y la fundamentación de cada una de las decisiones técnicas adoptadas.'), spacer(80), 
+                            p('La distribución de responsabilidades en microservicios específicos —como svc-usuarios (autenticación), svc-academico (gestión de datos), svc-metricas (cálculo de indicadores), svc-recomendaciones (planes de acción) y svc-ia (modelos predictivos)— asegura una alta cohesión y un bajo acoplamiento. Esto permite que cada componente sea desarrollado, testeado y desplegado de manera autónoma, minimizando riesgos técnicos y optimizando la entrega continua en un proyecto con tiempo limitado.'), spacer(80), 
+                            p('La selección de un stack tecnológico conformado por NestJS, FastAPI, Turborepo, PostgreSQL, MongoDB y Redis obecece a criterios técnicos rigurosos enfocados en la escalabilidad y el rendimiento. Estas herramientas no fueron elegidas al azar, sino validadas frente a otras alternativas para garantizar que la base arquitectónica sea lo suficientemente sólida como para afrontar la fase de implementación y despliegue con total confianza en las siguientes iteraciones.'), spacer(80),
+                            new Table({ width: { size: 9360, type: WidthType.DXA }, columnWidths: [2800, 6560], rows: [new TableRow({ children: [tdBold('Repositorio GitHub', 2800), td('https://github.com/VictorCanar/mentorapredict', 6560)] }), new TableRow({ children: [tdBold('Evidencias', 2800), td('Diagramas C4, Modelo de datos, Contratos OpenAPI', 6560)] })] }),
+                        ],
+                    }],
+                });
+
+                const blob = await Packer.toBlob(doc);
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "MentoraPredict_MVP_Backend_Turborepo.docx";
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                
+                status.innerText = "¡Documento de 7-8 páginas generado con éxito!";
+                btn.disabled = false;
+
+            } catch (error) {
+                console.error(error);
+                status.innerText = "Error: " + error.message;
+                btn.disabled = false;
+            }
+        }
+
+        document.getElementById('downloadBtn').addEventListener('click', generarYDescargar);
+    </script>
 </body>
 </html>
