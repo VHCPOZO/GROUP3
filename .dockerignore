@@ -5,3 +5,4 @@ target/
 *.tmp
 *.swp
 *.DS_Store
+.env
