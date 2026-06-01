@@ -39,9 +39,9 @@ services:
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
-      SERVER_PORT: ${SERVER_PORT}
+      PORT: ${PORT:-9090}
     ports:
-      - "${SERVER_PORT}:${SERVER_PORT}"
+      - "${PORT:-9090}:${PORT:-9090}"
     restart: on-failure
     networks:
       - arquite-network
